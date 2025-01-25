@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model BusStop {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  students  Student[]
+}
+
+model Student {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String
+  busStopId Int
+  busStop   BusStop  @relation(fields: [busStopId], references: [id])
+}
