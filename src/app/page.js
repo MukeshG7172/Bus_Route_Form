@@ -1,10 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
+import BusStopAutocomplete from '@/components/BusStopAutocomplete'
 import Image from 'next/image'
 
 export default function StudentForm() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [year, setYear] = useState('')
   const [busStops, setBusStops] = useState([])
   const [selectedBusStop, setSelectedBusStop] = useState(null)
 
@@ -23,7 +25,7 @@ export default function StudentForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!selectedBusStop) {
       alert('Please select a bus stop')
       return
@@ -38,6 +40,7 @@ export default function StudentForm() {
         body: JSON.stringify({
           name,
           phone,
+          year,
           busStopId: selectedBusStop
         })
       })
@@ -48,6 +51,7 @@ export default function StudentForm() {
 
       setName('')
       setPhone('')
+      setYear('')
       setSelectedBusStop(null)
       alert('Student added successfully!')
     } catch (error) {
@@ -113,24 +117,23 @@ export default function StudentForm() {
               className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <select
-              value={selectedBusStop || ''}
-              onChange={(e) => setSelectedBusStop(Number(e.target.value))}
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
               className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
               required
             >
-              <option value="" className="bg-gray-800">Select Bus Stop</option>
-              {busStops.map((stop) => (
-                <option 
-                  key={stop.id} 
-                  value={stop.id} 
-                  className="bg-gray-800"
-                >
-                  {stop.name}
-                </option>
-              ))}
+              <option value="" className="bg-gray-800">Select Year</option>
+              <option value="I" className="bg-gray-800">I</option>
+              <option value="II" className="bg-gray-800">II</option>
+              <option value="III" className="bg-gray-800">III</option>
+              <option value="IV" className="bg-gray-800">IV</option>
             </select>
-            <button 
-              type="submit" 
+            <BusStopAutocomplete
+              busStops={busStops}
+              onSelectBusStop={(stopId) => setSelectedBusStop(stopId)}
+            />
+            <button
+              type="submit"
               className="w-full p-3 bg-[#00f5d0] text-black rounded-lg font-bold hover:bg-[#00c2a8] transition-colors"
             >
               Submit

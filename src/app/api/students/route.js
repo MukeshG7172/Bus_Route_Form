@@ -5,11 +5,12 @@ const prisma = new PrismaClient()
 
 export async function POST(request) {
     try {
-        const { name, phone, busStopId } = await request.json()
+        const { name, phone, year, busStopId } = await request.json()
         const newStudent = await prisma.student.create({
             data: {
                 name,
                 phone,
+                year,
                 busStopId
             }
         })

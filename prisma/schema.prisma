@@ -16,6 +16,7 @@ model BusStop {
 model Student {
   id        Int      @id @default(autoincrement())
   name      String
+  year      String
   phone     String
   busStopId Int
   busStop   BusStop  @relation(fields: [busStopId], references: [id])
