@@ -36,12 +36,13 @@ const BusStopAutocomplete = ({ busStops, onSelectBusStop }) => {
             setIsDropdownOpen(true);
           }}
           onFocus={() => setIsDropdownOpen(true)}
+          onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
           placeholder="Search Bus Stops"
-          className="w-full p-3 pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full p-2 sm:p-3 pl-8 sm:pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
         />
         <Search 
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white" 
-          size={20} 
+          className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-white" 
+          size={16} 
         />
       </div>
 
@@ -51,7 +52,7 @@ const BusStopAutocomplete = ({ busStops, onSelectBusStop }) => {
             <li 
               key={stop.id}
               onClick={() => handleSelectBusStop(stop)}
-              className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+              className="px-3 sm:px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center text-sm sm:text-base"
             >
               <MapPin size={16} className="mr-2 text-[#00f5d0]" />
               <div>
@@ -63,7 +64,7 @@ const BusStopAutocomplete = ({ busStops, onSelectBusStop }) => {
       )}
 
       {isDropdownOpen && filteredBusStops.length === 0 && searchTerm && (
-        <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-4 text-center text-gray-400">
+        <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg p-3 text-center text-gray-400 text-sm">
           No bus stops found
         </div>
       )}
