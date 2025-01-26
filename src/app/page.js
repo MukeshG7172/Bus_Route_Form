@@ -9,15 +9,32 @@ const BusStopAutocomplete = ({ busStops, onSelectBusStop }) => {
   const [selectedBusStop, setSelectedBusStop] = useState(null);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
-
   const filteredBusStops = useMemo(() => {
     if (!searchTerm) return [];
     
+    const normalizedSearchTerm = searchTerm.toLowerCase().trim();
+    
     return busStops
-      .filter(stop => 
-        stop.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        stop.id.toString().includes(searchTerm)
-      )
+      .filter(stop => {
+        // Improve search by matching multiple criteria
+        const matchesName = stop.name.toLowerCase().includes(normalizedSearchTerm);
+        const matchesId = stop.id.toString().includes(normalizedSearchTerm);
+        const matchesLocation = stop.location 
+          ? stop.location.toLowerCase().includes(normalizedSearchTerm)
+          : false;
+        
+        return matchesName || matchesId || matchesLocation;
+      })
+      .sort((a, b) => {
+        const aStartsWithTerm = a.name.toLowerCase().startsWith(normalizedSearchTerm);
+        const bStartsWithTerm = b.name.toLowerCase().startsWith(normalizedSearchTerm);
+        
+        if (aStartsWithTerm && !bStartsWithTerm) return -1;
+        if (!aStartsWithTerm && bStartsWithTerm) return 1;
+        
+        // Then sort alphabetically
+        return a.name.localeCompare(b.name);
+      })
       .slice(0, 10);
   }, [busStops, searchTerm]);
 
