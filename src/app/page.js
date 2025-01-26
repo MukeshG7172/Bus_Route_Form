@@ -39,12 +39,12 @@ export default function StudentForm() {
       busStop: ''
     }
 
-    // Name validation
+    
     if (!name.trim()) {
       newErrors.name = 'Name is required'
     }
 
-    // Phone number validation
+    
     const phoneRegex = /^\d{10}$/
     if (!phone.trim()) {
       newErrors.phone = 'Phone number is required'
@@ -52,12 +52,12 @@ export default function StudentForm() {
       newErrors.phone = 'Phone number must be 10 digits'
     }
 
-    // Year validation
+    
     if (!year) {
       newErrors.year = 'Please select a year'
     }
 
-    // Bus stop validation
+    
     if (!selectedBusStop) {
       newErrors.busStop = 'Please select a bus stop'
     }
@@ -93,7 +93,7 @@ export default function StudentForm() {
         throw new Error('Failed to add student')
       }
 
-      // Reset form
+      
       setName('')
       setPhone('')
       setYear('')
@@ -115,7 +115,6 @@ export default function StudentForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-      {/* Header Section - Responsive */}
       <div className="w-full py-4 sm:py-6 from-gray-900 to-gray-800">
         <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
           <Image
@@ -137,24 +136,15 @@ export default function StudentForm() {
           />
         </div>
       </div>
-
-      {/* Banner Section - Responsive */}
-      <div className="relative w-full h-36 md:h-48 lg:h-64">
-        <Image
-          src="/logo1.png"
-          alt="Student Form Banner"
-          fill
-          className="object-cover"
-          priority
-        />
+      <div className="relative w-full h-26 md:h-38 lg:h-64">
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
           <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white text-center px-4">
-            Student <span className='text-[#00f5d0]'>Registration</span>
+            Bus Route <span className='text-[#00f5d0]'>Details</span>
           </h1>
         </div>
       </div>
 
-      {/* Form Section - Responsive */}
+      
       <div className="max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white/5 backdrop-blur-lg rounded-xl shadow-xl border border-gray-700/50 overflow-hidden p-4 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
