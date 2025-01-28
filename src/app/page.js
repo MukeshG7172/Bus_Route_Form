@@ -9,30 +9,24 @@ const BusStopAutocomplete = ({ busStops, onSelectBusStop }) => {
   const [selectedBusStop, setSelectedBusStop] = useState(null);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+
   const filteredBusStops = useMemo(() => {
     if (!searchTerm) return [];
-    
     const normalizedSearchTerm = searchTerm.toLowerCase().trim();
-    
     return busStops
       .filter(stop => {
-        // Improve search by matching multiple criteria
         const matchesName = stop.name.toLowerCase().includes(normalizedSearchTerm);
         const matchesId = stop.id.toString().includes(normalizedSearchTerm);
         const matchesLocation = stop.location 
           ? stop.location.toLowerCase().includes(normalizedSearchTerm)
           : false;
-        
         return matchesName || matchesId || matchesLocation;
       })
       .sort((a, b) => {
         const aStartsWithTerm = a.name.toLowerCase().startsWith(normalizedSearchTerm);
         const bStartsWithTerm = b.name.toLowerCase().startsWith(normalizedSearchTerm);
-        
         if (aStartsWithTerm && !bStartsWithTerm) return -1;
         if (!aStartsWithTerm && bStartsWithTerm) return 1;
-        
-        // Then sort alphabetically
         return a.name.localeCompare(b.name);
       })
       .slice(0, 10);
@@ -49,11 +43,8 @@ const BusStopAutocomplete = ({ busStops, onSelectBusStop }) => {
         setIsDropdownOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleSelectBusStop = (stop) => {
@@ -87,46 +78,45 @@ const BusStopAutocomplete = ({ busStops, onSelectBusStop }) => {
             }
           }}
           placeholder="Search Bus Stops"
-          className="w-full p-2 sm:p-3 pl-8 sm:pl-10 pr-8 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+          className="w-full p-4 pl-12 pr-10 bg-slate-900 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 border-2 border-slate-700 transition-all duration-200"
         />
-        <Search 
-          className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-white" 
-          size={16} 
-        />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cyan-400" size={18} />
         {searchTerm && (
-          <X 
+          <button
             onClick={clearSearch}
-            className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-white cursor-pointer hover:text-gray-300" 
-            size={16} 
-          />
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+          >
+            <X size={18} />
+          </button>
         )}
       </div>
 
-      {isDropdownOpen && (
+      {isDropdownOpen && filteredBusStops.length > 0 && (
         <div 
           ref={dropdownRef}
-          className="absolute z-20 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+          className="absolute z-20 w-full bg-slate-900 rounded-xl border-2 border-slate-700 shadow-xl"
+          style={{
+            maxHeight: '200px',
+            overflowY: 'auto',
+            top: 'calc(100% + 0.5rem)',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#475569 #1e293b'
+          }}
         >
-          {filteredBusStops.length > 0 ? (
-            <ul>
-              {filteredBusStops.map((stop) => (
-                <li 
-                  key={stop.id}
-                  onClick={() => handleSelectBusStop(stop)}
-                  className="px-3 sm:px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center text-sm sm:text-base"
-                >
-                  <MapPin size={16} className="mr-2 text-[#00f5d0]" />
-                  <div>
-                    <span className="font-medium text-white">{stop.name}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="p-3 text-center text-gray-400 text-sm">
-              No bus stops found
-            </div>
-          )}
+          <ul>
+            {filteredBusStops.map((stop) => (
+              <li 
+                key={stop.id}
+                onClick={() => handleSelectBusStop(stop)}
+                className="px-4 py-3 hover:bg-slate-800 cursor-pointer flex items-center group transition-colors"
+              >
+                <MapPin size={18} className="mr-3 text-cyan-400 group-hover:text-cyan-300 flex-shrink-0" />
+                <span className="text-white group-hover:text-cyan-300 transition-colors truncate">
+                  {stop.name}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
@@ -168,10 +158,8 @@ export default function StudentForm() {
       busStop: ''
     };
 
-    if (!name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-
+    if (!name.trim()) newErrors.name = 'Name is required';
+    
     const phoneRegex = /^\d{10}$/;
     if (!phone.trim()) {
       newErrors.phone = 'Phone number is required';
@@ -179,13 +167,8 @@ export default function StudentForm() {
       newErrors.phone = 'Phone number must be 10 digits';
     }
 
-    if (!year) {
-      newErrors.year = 'Please select a year';
-    }
-
-    if (!selectedBusStop) {
-      newErrors.busStop = 'Please select a bus stop';
-    }
+    if (!year) newErrors.year = 'Please select a year';
+    if (!selectedBusStop) newErrors.busStop = 'Please select a bus stop';
 
     setErrors(newErrors);
     return Object.values(newErrors).every(error => error === '');
@@ -193,19 +176,13 @@ export default function StudentForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
-
     try {
       const response = await fetch('/api/students', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
           phone,
@@ -214,20 +191,13 @@ export default function StudentForm() {
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to add student');
-      }
+      if (!response.ok) throw new Error('Failed to add student');
 
       setName('');
       setPhone('');
       setYear('');
       setSelectedBusStop(null);
-      setErrors({
-        name: '',
-        phone: '',
-        year: '',
-        busStop: ''
-      });
+      setErrors({ name: '', phone: '', year: '', busStop: '' });
       alert('Student added successfully!');
     } catch (error) {
       console.error('Error adding student:', error);
@@ -237,98 +207,91 @@ export default function StudentForm() {
     }
   };
 
+  const inputClasses = "w-full p-4 bg-slate-900 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 border-2 border-slate-700 transition-all duration-200";
+  const errorClasses = "text-red-400 text-sm mt-2 ml-1";
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-      <div className="w-full py-4 sm:py-6 from-gray-900 to-gray-800">
-        <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
-          <Image
-            src="/logo2.png"
-            alt="Left Logo"
-            width={120}
-            height={40}
-            className="object-contain mt-[-10px] w-16 sm:w-24 md:w-32"
-          />
-          <p className='text-white text-2xl sm:text-4xl md:text-6xl font-hacked text-center'>
-            Hackerz <span className='text-[#00f5d0]'>Forms</span>
-          </p>
-          <Image
-            src="/logo1.png"
-            alt="Right Logo"
-            width={120}
-            height={40}
-            className="object-contain mt-[8px] w-16 sm:w-24 md:w-32"
-          />
-        </div>
-      </div>
-      <div className="relative w-full h-26 md:h-38 lg:h-64">
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white text-center px-4">
-            Bus Route <span className='text-[#00f5d0]'>Details</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <header className="w-full py-6 px-4">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <Image src="/logo2.png" alt="Left Logo" width={120} height={40} className="w-24 md:w-32" />
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Hackerz Forms
           </h1>
+          <Image src="/logo1.png" alt="Right Logo" width={120} height={40} className="w-24 md:w-32" />
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto px-6 py-10">
-        <div className="bg-white/5 backdrop-blur-lg rounded-xl shadow-xl border border-gray-700/50 overflow-hidden p-6 sm:p-10 md:p-12">
-          <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
-            <div>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Student Name"
-                className="w-full p-3 sm:p-4 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-              {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
-            </div>
+      <main className="max-w-2xl mx-auto px-4 py-12">
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 min-h-[700px]">
+          {/* Form Header */}
+          <div className="p-8 pb-0">
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">
+              Bus Route Details
+            </h2>
+          </div>
 
-            <div>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Phone Number"
-                className="w-full p-3 sm:p-4 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-              {errors.phone && <p className="text-red-500 text-sm mt-2">{errors.phone}</p>}
-            </div>
+          {/* Form Content - Separate scrollable container with more padding */}
+          <div className="p-8 pt-4 pb-12 overflow-visible">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Student Name"
+                  className={inputClasses}
+                />
+                {errors.name && <p className={errorClasses}>{errors.name}</p>}
+              </div>
 
-            <div>
-              <select
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                className="w-full p-3 sm:p-4 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              <div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Phone Number"
+                  className={inputClasses}
+                />
+                {errors.phone && <p className={errorClasses}>{errors.phone}</p>}
+              </div>
+
+              <div>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  className={inputClasses}
+                >
+                  <option value="" className="bg-slate-900">Select Year</option>
+                  <option value="I" className="bg-slate-900">I</option>
+                  <option value="II" className="bg-slate-900">II</option>
+                  <option value="III" className="bg-slate-900">III</option>
+                  <option value="IV" className="bg-slate-900">IV</option>
+                </select>
+                {errors.year && <p className={errorClasses}>{errors.year}</p>}
+              </div>
+
+              <div className="relative">
+                <BusStopAutocomplete
+                  busStops={busStops}
+                  onSelectBusStop={(stopId) => setSelectedBusStop(stopId)}
+                />
+                {errors.busStop && <p className={errorClasses}>{errors.busStop}</p>}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full p-4 mt-8 bg-gradient-to-r from-cyan-400 to-blue-500 text-white rounded-xl font-semibold hover:from-cyan-500 hover:to-blue-600 transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <option value="" className="bg-gray-800">Select Year</option>
-                <option value="I" className="bg-gray-800">I</option>
-                <option value="II" className="bg-gray-800">II</option>
-                <option value="III" className="bg-gray-800">III</option>
-                <option value="IV" className="bg-gray-800">IV</option>
-              </select>
-              {errors.year && <p className="text-red-500 text-sm mt-2">{errors.year}</p>}
-            </div>
-
-            <div className="relative">
-              <BusStopAutocomplete
-                busStops={busStops}
-                onSelectBusStop={(stopId) => setSelectedBusStop(stopId)}
-              />
-              {errors.busStop && <p className="text-red-500 text-sm mt-2">{errors.busStop}</p>}
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full p-3 sm:p-4 bg-[#00f5d0] text-black rounded-lg font-bold hover:bg-[#00c2a8] transition-colors flex items-center justify-center disabled:opacity-50"
-            >
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Submit
-            </button>
-          </form>
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : 'Submit'}
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
