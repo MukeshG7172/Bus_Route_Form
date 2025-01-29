@@ -215,7 +215,7 @@ export default function StudentForm() {
       <header className="w-full py-6 px-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <Image src="/logo2.png" alt="Left Logo" width={120} height={40} className="w-24 md:w-32" />
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-hacked md:text-6xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Hackerz Forms
           </h1>
           <Image src="/logo1.png" alt="Right Logo" width={120} height={40} className="w-24 md:w-32" />
